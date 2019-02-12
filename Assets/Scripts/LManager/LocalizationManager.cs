@@ -14,6 +14,7 @@ namespace LManager
     {
         public const char PARAMETER_DELIMITER = '@';
         private const string PLAYER_PREFS_LANGUAGE_KEY = "_currentLanguageCode";
+        private const string DEFAULT_MISSING_VALUE = "@@MISSING@@";
 
         public static LocalizationManager Instance = new LocalizationManager();
         public OnLocalizationChanged onLocalizationChanged { get; set; } = new OnLocalizationChanged();
@@ -83,19 +84,24 @@ namespace LManager
         public bool TryGet(string key, out string result, Dictionary<string, string> replaces = null)
         {
             var hasValue = mLanguageDictionary.TryGetValue(key, out result);
-            if(hasValue && result.Contains(PARAMETER_DELIMITER) && replaces != null)
+            if (hasValue)
             {
-                var elements = result.Split(PARAMETER_DELIMITER);
-                result = elements[0];
-                for (var i = 1; i < elements.Length; i++)
+                if (result.Contains(PARAMETER_DELIMITER) && replaces != null)
                 {
-                    var replace = elements[i];
-                    if (i % 2 != 0)
-                        replaces.TryGetValue(replace, out replace);
+                    var elements = result.Split(PARAMETER_DELIMITER);
+                    result = elements[0];
+                    for (var i = 1; i < elements.Length; i++)
+                    {
+                        var replace = elements[i];
+                        if (i % 2 != 0)
+                            replaces.TryGetValue(replace, out replace);
 
-                    result += replace;
+                        result += replace;
+                    }
                 }
             }
+            else
+                result = DEFAULT_MISSING_VALUE;
 
             return hasValue;
         }
